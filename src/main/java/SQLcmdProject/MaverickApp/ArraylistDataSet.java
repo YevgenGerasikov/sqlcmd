@@ -16,11 +16,6 @@ public class ArraylistDataSet {
     public List<String> userInputForDeleteInfo = new ArrayList<>();
     private String tableName;
 
-    public static void main(String[] args) {
-
-
-    }
-
     public String getTableName() {
         return tableName;
     }

@@ -86,7 +86,7 @@ public class ArraylistDataSet {
         String addDataToTableQuery = "INSERT INTO public." + getTableName();
         addDataToTableQuery += handleAddUserInput(userKeysInput);
         addDataToTableQuery += " VALUES" + handleAddUserInput(userValuesInput);
-        System.out.println("Запрос для вставки нового значения в таблицу: " + addDataToTableQuery);
+        //System.out.println("Запрос для вставки нового значения в таблицу: " + addDataToTableQuery);
         return addDataToTableQuery;
     }
 

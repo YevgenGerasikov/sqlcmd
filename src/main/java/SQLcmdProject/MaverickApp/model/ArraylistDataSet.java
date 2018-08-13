@@ -1,4 +1,4 @@
-package SQLcmdProject.MaverickApp;
+package SQLcmdProject.MaverickApp.model;
 
 import java.util.List;
 import java.util.ArrayList;

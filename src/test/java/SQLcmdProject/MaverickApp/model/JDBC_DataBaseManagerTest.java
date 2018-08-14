@@ -1,27 +1,30 @@
-package SQLcmdProject.MaverickApp;
+package SQLcmdProject.MaverickApp.model;
 
 import org.junit.jupiter.api.*;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class JDBC_DataBaseManagerTest {
     //Тестируем методы передачи SQL запросов
     private static JDBC_DataBaseManager manager;
-    private static ArraylistDataSet testDataSetInstance = new ArraylistDataSet();
+    private static UserInputHandler testDataSetInstance = new UserInputHandler();
     private static Connection connection;
     private static Statement stmt;
     private static ResultSet queryResult;
     private static ResultSetMetaData rsmd;
+    private List<String> userInputAsList = new ArrayList<>();
 
 
     @BeforeAll
     static void initAll() throws SQLException {
         manager = new JDBC_DataBaseManager();
-        manager.connectToDatabase();
+        manager.connectToDatabase("postgres", "postgres", "postgres");
         connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "postgres");
-
+        stmt = connection.createStatement();
     }
 
     @AfterAll
@@ -29,6 +32,13 @@ class JDBC_DataBaseManagerTest {
         try {
             connection.close();
             System.out.println("Соединение закрыто");
+            if (stmt != null && !stmt.isClosed()) {
+                stmt.close();
+                //System.out.println("Инструкция Statement закрыта.");
+            } else if (queryResult != null && !queryResult.isClosed()) {
+                queryResult.close();
+                //System.out.println("Инструкция ResultSet закрыта.");
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -36,25 +46,14 @@ class JDBC_DataBaseManagerTest {
 
     @BeforeEach
     void initEach() throws SQLException {
-        stmt = connection.createStatement();
         testDataSetInstance.setTableName("users");
     }
 
-    @AfterEach
-    void afterEach() throws SQLException {
-        if (stmt != null && !stmt.isClosed()) {
-            stmt.close();
-            System.out.println("Инструкция Statement закрыта.");
-        } else if (queryResult != null && !queryResult.isClosed()) {
-            queryResult.close();
-            System.out.println("Инструкция ResultSet закрыта.");
-        }
-    }
     //TODO Mockito need
 
 
     @Test
-    void connectToDatabaseTest() {
+    void connectToDatabase() {
         try {
             boolean expected = (!manager.connection.isClosed());
             assertEquals(expected, true, "Expected true");
@@ -63,32 +62,30 @@ class JDBC_DataBaseManagerTest {
         }
     }
 
-    @Test
-    void addBlankTableTest() {
-        try {
-            stmt.executeUpdate("DROP TABLE IF EXISTS public.users");
-            manager.addTable(testDataSetInstance);
-            queryResult = stmt.executeQuery("SELECT table_name FROM information_schema.tables WHERE table_name = 'users'");
-            String expected = "users";
-            String result = "";
-            while (queryResult.next()) {
-                result = queryResult.getString("table_name");
-            }
-            assertEquals(expected, result, "table not created");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+//    @Test
+//    void addBlankTableTest() {
+//        try {
+//            stmt.executeUpdate("DROP TABLE IF EXISTS public.users");
+//            manager.addTable(userInputAsList);
+//            queryResult = stmt.executeQuery("SELECT table_name FROM information_schema.tables WHERE table_name = 'users'");
+//            String expected = "users";
+//            String result = "";
+//            while (queryResult.next()) {
+//                result = queryResult.getString("table_name");
+//            }
+//            assertEquals(expected, result, "table not created");
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     @Test
-    void addTableWithColumnsTest() {
+    void addTable() {
         try {
             stmt.executeUpdate("DROP TABLE IF EXISTS public.users");
-            testDataSetInstance.userKeysInput.add("name");
-            testDataSetInstance.userKeysInput.add("password");
-            testDataSetInstance.userValuesInput.add("VARCHAR(25)");
-            testDataSetInstance.userValuesInput.add("VARCHAR(25)");
-            manager.addTable(testDataSetInstance);
+            userInputAsList.add("name");
+            userInputAsList.add("password");
+            manager.addTable("users", userInputAsList);
             queryResult = stmt.executeQuery("SELECT * FROM public.users");
             rsmd = queryResult.getMetaData();
             int columnsCount = rsmd.getColumnCount();
@@ -104,7 +101,7 @@ class JDBC_DataBaseManagerTest {
     }
 
     @Test
-    void addDataToTableTest() {
+    void addDataToTable() {
         try {
             testDataSetInstance.setTableName("test");
             queryResult = stmt.executeQuery("SELECT COUNT(1) FROM public.test");
@@ -133,44 +130,45 @@ class JDBC_DataBaseManagerTest {
     }
 
     @Test
-    void getTablesListTest() {
-        manager.getTablesList(testDataSetInstance);
+    void getTablesList() {
+        manager.getTablesList();
         //Mockito
     }
 
     @Test
-    void getTableDataTest() {
+    void getTableData() {
+        manager.getTableData("test");
+        //Mockito
+    }
+
+    @Test
+        //Mockito
+    void updateData() {
         testDataSetInstance.setTableName("test");
-        manager.getTableData(testDataSetInstance);
-        //Mockito
+        testDataSetInstance.userSetInputForTableEdit.add("password");
+        testDataSetInstance.userSetInputForTableEdit.add("testPASSWOD2");
+        testDataSetInstance.userSetInputForTableEdit.add("name");
+        testDataSetInstance.userSetInputForTableEdit.add("testNAME2");
+        testDataSetInstance.userWhereInputForTableEdit.add("id");
+        testDataSetInstance.userWhereInputForTableEdit.add("6");
+        manager.updateData(testDataSetInstance);
     }
 
     @Test
-        //Mockito
-    void updateDataTest() {
-        try {
-            testDataSetInstance.setTableName("test");
-            testDataSetInstance.userSetInputForTableEdit.add("password");
-            testDataSetInstance.userSetInputForTableEdit.add("testPASSWOD2");
-            testDataSetInstance.userSetInputForTableEdit.add("name");
-            testDataSetInstance.userSetInputForTableEdit.add("testNAME2");
-            testDataSetInstance.userWhereInputForTableEdit.add("id");
-            testDataSetInstance.userWhereInputForTableEdit.add("6");
-            manager.updateData(testDataSetInstance);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    void deleteSelectedData() {
+        testDataSetInstance.setTableName("test");
+        testDataSetInstance.userInputForDeleteInfo.add("password");
+        testDataSetInstance.userInputForDeleteInfo.add("12345678p@");
+        manager.deleteSelectedData(testDataSetInstance);
     }
 
     @Test
-    void deleteDataTest() {
-        try {
-            testDataSetInstance.setTableName("test");
-            testDataSetInstance.userInputForDeleteInfo.add("password");
-            testDataSetInstance.userInputForDeleteInfo.add("12345678p@");
-            manager.deleteData(testDataSetInstance);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    void deleteAllData() {
+        manager.deleteAllData("users");
+    }
+
+    @Test
+    void deleteTable() {
+        manager.deleteTable("users");
     }
 }

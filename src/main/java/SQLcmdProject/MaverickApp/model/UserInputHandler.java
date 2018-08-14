@@ -3,18 +3,15 @@ package SQLcmdProject.MaverickApp.model;
 import java.util.List;
 import java.util.ArrayList;
 
-public class ArraylistDataSet {
-    //Controller (MVC) part
-    // реализует методы для обработки уже полученого пользовательского ввода
-    // и формирования PostresSQL команды для передачи в вызывающий метод
+public class UserInputHandler {
 
     //TODO сделать литсы private. для для этого реализовать в их сеттерах обработку данных из IO интерфейсов
+    private String tableName;
     public List<String> userKeysInput = new ArrayList<>();
     public List<String> userValuesInput = new ArrayList<>();
     public List<String> userSetInputForTableEdit = new ArrayList<>();
     public List<String> userWhereInputForTableEdit = new ArrayList<>();
     public List<String> userInputForDeleteInfo = new ArrayList<>();
-    private String tableName;
 
     public String getTableName() {
         return tableName;
@@ -70,9 +67,9 @@ public class ArraylistDataSet {
         return userInputString;
     }
 
-    public String createTableQuery() {
+    public String createTableQuery(List<String> userInputAsList) {
         String createTableQuery = "CREATE TABLE IF NOT EXISTS public." + getTableName();
-        createTableQuery += handleCreateUserInput(userKeysInput);
+        createTableQuery += handleCreateUserInput(userInputAsList);
         return createTableQuery;
     }
 
@@ -89,8 +86,8 @@ public class ArraylistDataSet {
         return "SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'";
     }
 
-    public String getTableDataQuery() {
-        return "SELECT * FROM public." + getTableName();
+    public String getTableDataQuery(String tableName) {
+        return "SELECT * FROM public." + tableName;
     }
 
     public String updateDataInTableQuery() {
@@ -109,4 +106,13 @@ public class ArraylistDataSet {
         deleteDataFromTableQuery += handleUpdateUserInput(userInputForDeleteInfo);
         return deleteDataFromTableQuery;
     }
+
+    public String deleteAllDataInTableQuery(String tableName){
+        return "DELETE FROM public." + tableName;
+    }
+
+    public String deleteTableQuery(String tableName){
+        return "DROP TABLE " + tableName;
+    }
+
 }

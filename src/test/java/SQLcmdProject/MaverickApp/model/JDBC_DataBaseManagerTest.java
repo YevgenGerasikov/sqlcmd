@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class JDBC_DataBaseManagerTest {
     //Тестируем методы передачи SQL запросов
     private static JDBC_DataBaseManager manager;
-    private static UserInputHandler testDataSetInstance = new UserInputHandler();
     private static Connection connection;
     private static Statement stmt;
     private static ResultSet queryResult;
@@ -43,12 +42,6 @@ class JDBC_DataBaseManagerTest {
             e.printStackTrace();
         }
     }
-
-    @BeforeEach
-    void initEach() throws SQLException {
-        testDataSetInstance.setTableName("users");
-    }
-
     //TODO Mockito need
 
 
@@ -61,23 +54,6 @@ class JDBC_DataBaseManagerTest {
             e.printStackTrace();
         }
     }
-
-//    @Test
-//    void addBlankTableTest() {
-//        try {
-//            stmt.executeUpdate("DROP TABLE IF EXISTS public.users");
-//            manager.addTable(userInputAsList);
-//            queryResult = stmt.executeQuery("SELECT table_name FROM information_schema.tables WHERE table_name = 'users'");
-//            String expected = "users";
-//            String result = "";
-//            while (queryResult.next()) {
-//                result = queryResult.getString("table_name");
-//            }
-//            assertEquals(expected, result, "table not created");
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     @Test
     void addTable() {
@@ -103,19 +79,18 @@ class JDBC_DataBaseManagerTest {
     @Test
     void addDataToTable() {
         try {
-            testDataSetInstance.setTableName("test");
             queryResult = stmt.executeQuery("SELECT COUNT(1) FROM public.test");
             int before = 0;
             if (queryResult.next()) {
                 before = queryResult.getInt(1);
             }
-            testDataSetInstance.userKeysInput.add("name");
-            testDataSetInstance.userValuesInput.add("'Vasyl140'");
-            testDataSetInstance.userKeysInput.add("surname");
-            testDataSetInstance.userValuesInput.add("'Gupalo1140'");
-            testDataSetInstance.userKeysInput.add("password");
-            testDataSetInstance.userValuesInput.add("'12345678p@'");
-            manager.addDataToTable(testDataSetInstance);
+            userInputAsList.add("name");
+            userInputAsList.add("Vasyl140");
+            userInputAsList.add("surname");
+            userInputAsList.add("Gupalo1140");
+            userInputAsList.add("password");
+            userInputAsList.add("12345678p@");
+            manager.addDataToTable("test", userInputAsList);
             queryResult = stmt.executeQuery("SELECT COUNT(1) FROM public.test");
             int after = 0;
             if (queryResult.next()) {
@@ -144,22 +119,21 @@ class JDBC_DataBaseManagerTest {
     @Test
         //Mockito
     void updateData() {
-        testDataSetInstance.setTableName("test");
-        testDataSetInstance.userSetInputForTableEdit.add("password");
-        testDataSetInstance.userSetInputForTableEdit.add("testPASSWOD2");
-        testDataSetInstance.userSetInputForTableEdit.add("name");
-        testDataSetInstance.userSetInputForTableEdit.add("testNAME2");
-        testDataSetInstance.userWhereInputForTableEdit.add("id");
-        testDataSetInstance.userWhereInputForTableEdit.add("6");
-        manager.updateData(testDataSetInstance);
+        userInputAsList.add("id");
+        userInputAsList.add("6");
+        userInputAsList.add("password");
+        Integer randomPass = (int) (Math.random() * 1000 + 17);
+        userInputAsList.add("TEST" + randomPass.toString());
+        userInputAsList.add("name");
+        userInputAsList.add("testNAME");
+        manager.updateData("test", userInputAsList);
     }
 
     @Test
     void deleteSelectedData() {
-        testDataSetInstance.setTableName("test");
-        testDataSetInstance.userInputForDeleteInfo.add("password");
-        testDataSetInstance.userInputForDeleteInfo.add("12345678p@");
-        manager.deleteSelectedData(testDataSetInstance);
+        userInputAsList.add("password");
+        userInputAsList.add("12345678p@");
+        manager.deleteSelectedData("test", userInputAsList);
     }
 
     @Test

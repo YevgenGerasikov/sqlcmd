@@ -12,7 +12,7 @@ public interface DataBaseManager {
     void addTable(String tableName, List<String> userInputAsList);
 
     //addData() метод добавления данных в таблицу
-    void addDataToTable(UserInputHandler myInstance);
+    void addDataToTable(String tableName, List<String> userInputAsList);
 
     //getTablesList() возвращает названия всех таблиц в БД
     void getTablesList();
@@ -21,10 +21,10 @@ public interface DataBaseManager {
     void getTableData(String tableName);
 
     //updateData() метод вносит изменения в существующую таблицу
-    void updateData(UserInputHandler myInstance);
+    void updateData(String tableName, List<String> userInputAsList);
 
     //deleteSelectedData() удаляет данные из таблицы по фильтру
-    void deleteSelectedData(UserInputHandler myInstance);
+    void deleteSelectedData(String tableName, List<String> userInputAsList);
 
     //deleteAllData() удаляет все записи в заданой таблице
     void deleteAllData(String tableName);

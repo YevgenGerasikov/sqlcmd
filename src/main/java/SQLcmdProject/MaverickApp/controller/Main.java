@@ -12,5 +12,6 @@ public class Main {
 
         Controller controller = new Controller(view, manager);
         controller.run();
+        String connect = "connect | postgres | postgres | postgres";
     }
 }

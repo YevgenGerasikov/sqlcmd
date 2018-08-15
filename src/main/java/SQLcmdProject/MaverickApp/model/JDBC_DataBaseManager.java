@@ -6,14 +6,10 @@ import java.util.List;
 // Задача - привести максимум методов к использованию шаблона запроса без явного указания значений
 
 public class JDBC_DataBaseManager implements DataBaseManager {
-    //Model (MVC) part
-    //private static String db_url = "jdbc:postgresql://localhost:5432/postgres";
-    //private static String db_username = "postgres";
-    //private static String db_password = "postgres";
 
     static Connection connection;
-    static Statement stmt;
-    static PreparedStatement pstmt;
+    private static Statement stmt;
+    private static PreparedStatement pstmt;
 
     private UserInputHandler userInputHandler;
 
@@ -45,8 +41,7 @@ public class JDBC_DataBaseManager implements DataBaseManager {
         try {
             stmt = connection.createStatement();
             //получаем и выполняем postresql запрос из обработчика пользовательских данных UserInputHandler
-            userInputHandler.setTableName(tableName);
-            stmt.executeUpdate(userInputHandler.createTableQuery(userInputAsList));
+            stmt.executeUpdate(userInputHandler.createTableQuery(tableName, userInputAsList));
             stmt.close();
 
         } catch (SQLException e) {
@@ -56,15 +51,16 @@ public class JDBC_DataBaseManager implements DataBaseManager {
     }
     //addData() метод добавления данных в таблицу
     @Override
-    public void addDataToTable(UserInputHandler myInstance) {
+    public void addDataToTable(String tableName, List<String> userInputAsList) {
         try {
             stmt = connection.createStatement();
-            int result = stmt.executeUpdate(myInstance.addDataToTableQuery());
+            int result = stmt.executeUpdate(userInputHandler.addDataToTableQuery(tableName, userInputAsList));
             if (result != 0) {
                 System.out.println("Добавлено " + result + " строк");
             }
             stmt.close();
         } catch (SQLException e) {
+            System.out.println("Ошибка в формате команды к базе данных");
             e.printStackTrace();
         }
     }
@@ -84,6 +80,7 @@ public class JDBC_DataBaseManager implements DataBaseManager {
             e.printStackTrace();
         }
     }
+
     //getData() метод получения данных из таблицы - READ [table]
     @Override
     public void getTableData(String tableName) {
@@ -113,7 +110,7 @@ public class JDBC_DataBaseManager implements DataBaseManager {
     }
     //updateData() метод вносит изменения в существующую таблицу
     @Override
-    public void updateData(UserInputHandler myInstance){
+    public void updateData(String tableName, List<String> userInputAsList) {
         try {
 //        pstmt = connection.prepareStatement("UPDATE public.users SET password = ? WHERE id = 3");
 //        String pass = "password_" + new Random().nextInt();
@@ -121,7 +118,7 @@ public class JDBC_DataBaseManager implements DataBaseManager {
 //        pstmt.executeUpdate();
 //        pstmt.close();
             stmt = connection.createStatement();
-            int result = stmt.executeUpdate(myInstance.updateDataInTableQuery());
+            int result = stmt.executeUpdate(userInputHandler.updateDataInTableQuery(tableName, userInputAsList));
             if (result != 0) {
                 System.out.println("Обновлено " + result + " строк");
             }
@@ -133,10 +130,10 @@ public class JDBC_DataBaseManager implements DataBaseManager {
     }
     //deleteSelectedData() удаляет данные из таблицы по фильтру
     @Override
-    public void deleteSelectedData(UserInputHandler myInstance){
+    public void deleteSelectedData(String tableName, List<String> userInputAsList) {
         try {
             stmt = connection.createStatement();
-            int result = stmt.executeUpdate(myInstance.deleteDataInTableQuery());
+            int result = stmt.executeUpdate(userInputHandler.deleteDataInTableQuery(tableName, userInputAsList));
             stmt.close();
             if (result != 0) {
                 System.out.println("Удалено " + result + " строк");

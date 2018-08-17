@@ -2,7 +2,7 @@ package SQLcmdProject.MaverickApp.view;
 
 import java.util.Scanner;
 
-public class Console implements View {
+public class Console implements ViewForSqlcmd {
     @Override
     public void write(String message) {
         System.out.println(message);

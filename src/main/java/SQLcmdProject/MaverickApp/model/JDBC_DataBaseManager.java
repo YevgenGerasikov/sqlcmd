@@ -22,7 +22,7 @@ public class JDBC_DataBaseManager implements DataBaseManager {
 
     //создаем соединени с БД
     @Override
-    public void connectToDatabase(String db_name, String db_username, String db_password) throws SQLException {
+    public void connectToDatabase(String db_name, String db_username, String db_password) {
         try {
             //Загружаем драйвер
             Class.forName("org.postgresql.Driver");
@@ -33,9 +33,17 @@ public class JDBC_DataBaseManager implements DataBaseManager {
             }
         } catch (ClassNotFoundException e) {
             System.out.println("Не удалось загрузить класс драйвера базы данных.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Не удалось установить соединение с БД. Проверьте правильность вводимых данных и повторите ввод");
         }
     }
     //addTable() метод для добавления новой таблицы - CREATE [table]
+    @Override
+    public boolean isConnected() {
+        return connection != null;
+    }
+
     @Override
     public void addTable(String tableName, List<String> userInputAsList) {
         try {

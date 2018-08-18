@@ -6,7 +6,10 @@ import java.util.List;
 public interface DataBaseManager {
 
     //создаем соединени с БД
-    void connectToDatabase(String db_url, String db_username, String db_password) throws SQLException;
+    void connectToDatabase(String db_url, String db_username, String db_password);
+
+    //addTable() метод для добавления новой таблицы - CREATE [table]
+    boolean isConnected();
 
     //addTable() метод для добавления новой таблицы - CREATE [table]
     void addTable(String tableName, List<String> userInputAsList);

@@ -20,6 +20,9 @@ public class Help implements Command {
     public void process(List<String> userInputAsList) {
         view.write("Существующие команды:");
 
+        view.write("\tconnect");
+        view.write("\t\t•\tДля подключения к соответствующей БД введите команду: connect | database | username | password");
+
         view.write("\ttables");
         view.write("\t\t•\tКоманда выводит список всех таблиц базы данных, к которой подключились");
 

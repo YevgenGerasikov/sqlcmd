@@ -34,7 +34,6 @@ public class JDBC_DataBaseManager implements DataBaseManager {
         } catch (ClassNotFoundException e) {
             System.out.println("Не удалось загрузить класс драйвера базы данных.");
         } catch (SQLException e) {
-            e.printStackTrace();
             System.out.println("Не удалось установить соединение с БД. Проверьте правильность вводимых данных и повторите ввод");
         }
     }

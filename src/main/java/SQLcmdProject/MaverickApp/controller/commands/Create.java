@@ -5,6 +5,7 @@ import SQLcmdProject.MaverickApp.model.DataBaseManager;
 import java.util.List;
 
 public class Create implements Command {
+    //TODO нет проверки на создание дубликата, сообщение об успехе может дезинформировать
     private final DataBaseManager manager;
     String tableName;
 

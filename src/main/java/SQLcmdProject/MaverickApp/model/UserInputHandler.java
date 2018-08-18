@@ -5,14 +5,11 @@ import java.util.ArrayList;
 
 public class UserInputHandler {
 
-    //TODO сделать литсы private. для для этого реализовать в их сеттерах обработку данных из IO интерфейсов
-
     public String handleCreateUserInput(List<String> userKeysInput) {
         String userInputString = "";
         if (userKeysInput.isEmpty()) {
             userInputString = "()";
         } else {
-            //TODO решить вопрос с генерацией поля "id"
             userInputString += "(id serial PRIMARY KEY, ";
             for (int i = 0; i < userKeysInput.size() - 1; i++) {
                 String value = userKeysInput.get(i) + " VARCHAR(25)";

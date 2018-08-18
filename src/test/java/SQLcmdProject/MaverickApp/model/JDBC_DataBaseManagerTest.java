@@ -145,4 +145,9 @@ class JDBC_DataBaseManagerTest {
     void deleteTable() {
         manager.deleteTable("users");
     }
+
+    @Test
+    void isConnected() {
+        assertTrue(manager.isConnected());
+    }
 }

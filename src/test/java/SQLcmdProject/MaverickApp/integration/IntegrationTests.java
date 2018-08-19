@@ -17,13 +17,11 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-@TestInstance(PER_METHOD)
+
 public class IntegrationTests {
     private ConfigurableInputStream in;
     private ByteArrayOutputStream out;
     private DataBaseManager manager;
-    private Connection connection;
-    private Statement stmt;
 
     public String getData() {
         try {
@@ -36,14 +34,8 @@ public class IntegrationTests {
     }
 
     @BeforeEach
-    void setup() {
+    void setupBeforeEachTest() {
         manager = new JDBC_DataBaseManager();
-        try {
-            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "postgres");
-            stmt = connection.createStatement();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
         in = new ConfigurableInputStream();
         out = new ByteArrayOutputStream();
@@ -53,20 +45,12 @@ public class IntegrationTests {
     }
 
     @AfterEach
-    void closeAfterEach() {
+    void closeAfterEachTest() {
         try {
             in.close();
             out.close();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        if (stmt != null || connection != null) {
-            try {
-                stmt.close();
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -127,7 +111,7 @@ public class IntegrationTests {
     }
 
     @Test
-    void isConnectedTest() { //TODO need fix, it does not work when you run respectively of group tests
+    void isConnectedTest() {
         in.add("tables");
         in.add("exit");
         Main.main(new String[0]);
@@ -151,7 +135,10 @@ public class IntegrationTests {
                 "Таблица '" + tableName + "' создана.\r\n" +
                 "Введите команду (или help для получения списка доступных команд):\r\n" +
                 "До скорой встречи!\r\n", getData());
-        try {
+        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres",
+                "postgres", "postgres");
+             Statement stmt = connection.createStatement()
+        ) {
             stmt.executeUpdate("DROP TABLE IF EXISTS public." + tableName);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -176,7 +163,10 @@ public class IntegrationTests {
 
     @Test
     void clearTest() {
-        try {
+        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres",
+                "postgres", "postgres");
+             Statement stmt = connection.createStatement()
+        ) {
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS public.tableForClearData (id serial PRIMARY KEY, name VARCHAR(25), password VARCHAR(25))");
             stmt.executeUpdate("INSERT INTO public.tableForClearData(name, password) VALUES('TestNameForDelete', '123456')");
         } catch (SQLException e) {
@@ -196,7 +186,10 @@ public class IntegrationTests {
 
     @Test
     void dropTest() {
-        try {
+        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres",
+                "postgres", "postgres");
+             Statement stmt = connection.createStatement()
+        ) {
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS tableForDelete()");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -250,7 +243,10 @@ public class IntegrationTests {
         int randomNumber = (int) (Math.random() * 1000 + 31);
         String randomPassword = "randomPass" + randomNumber;
         in.add("connect | postgres | postgres | postgres");
-        try {
+        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres",
+                "postgres", "postgres");
+             Statement stmt = connection.createStatement()
+        ) {
             stmt.executeUpdate("INSERT INTO public.users(name, password) VALUES ('Zina" + randomNumber + "', 'Z725@')");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -269,7 +265,10 @@ public class IntegrationTests {
     @Test
     void deleteTest() {
         in.add("connect | postgres | postgres | postgres");
-        try {
+        try (Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres",
+                "postgres", "postgres");
+             Statement stmt = connection.createStatement()
+        ) {
             stmt.executeUpdate("INSERT INTO public.users(name, password) VALUES ('Luba', '123456')");
         } catch (SQLException e) {
             e.printStackTrace();

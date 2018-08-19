@@ -12,7 +12,6 @@ class JDBC_DataBaseManagerTest {
     //Тестируем методы передачи SQL запросов
     private static JDBC_DataBaseManager manager;
     private static Connection connection;
-    private static Statement stmt;
     private static ResultSet queryResult;
     private static ResultSetMetaData rsmd;
     private List<String> userInputAsList = new ArrayList<>();
@@ -23,22 +22,19 @@ class JDBC_DataBaseManagerTest {
         manager = new JDBC_DataBaseManager();
         manager.connectToDatabase("postgres", "postgres", "postgres");
         try {
-            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "postgres");
-            stmt = connection.createStatement();
+            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres",
+                    "postgres", "postgres");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     @AfterAll
-    static void afterAll() {
+    static void checkConnections() {
         try {
-            connection.close();
-            //System.out.println("Тестовое соединение закрыто");
-            if (stmt != null && !stmt.isClosed()) {
-                stmt.close();
-            } else if (queryResult != null && !queryResult.isClosed()) {
-                queryResult.close();
+            if (!connection.isClosed()) {
+                connection.close();
+                System.out.println("Соединение с БД закрыто.");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -57,7 +53,7 @@ class JDBC_DataBaseManagerTest {
 
     @Test
     void addTable() {
-        try {
+        try (Statement stmt = connection.createStatement()) {
             userInputAsList.add("name");
             userInputAsList.add("password");
             manager.addTable("tableForDrop", userInputAsList);
@@ -78,7 +74,7 @@ class JDBC_DataBaseManagerTest {
 
     @Test
     void addDataToTable() {
-        try {
+        try (Statement stmt = connection.createStatement()) {
             int randomNumber = (int) (Math.random() * 1000 + 31);
             queryResult = stmt.executeQuery("SELECT COUNT(1) FROM public.users");
             int before = 0;
@@ -118,7 +114,7 @@ class JDBC_DataBaseManagerTest {
     @Test
         //Mockito
     void updateData() {
-        try {
+        try (Statement stmt = connection.createStatement()) {
             int randomNumber = (int) (Math.random() * 1000 + 31);
             userInputAsList.add("id");
             userInputAsList.add("1");
@@ -139,7 +135,7 @@ class JDBC_DataBaseManagerTest {
 
     @Test
     void deleteSelectedData() {
-        try {
+        try (Statement stmt = connection.createStatement()) {
             stmt.executeUpdate("INSERT INTO public.users(name, password) VALUES('TestNameForDelete', '123456')");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -151,7 +147,7 @@ class JDBC_DataBaseManagerTest {
 
     @Test
     void deleteAllData() {
-        try {
+        try (Statement stmt = connection.createStatement()) {
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS public.tableForClearData (id serial PRIMARY KEY, name VARCHAR(25), password VARCHAR(25))");
             stmt.executeUpdate("INSERT INTO public.tableForClearData(name, password) VALUES('TestNameForDelete', '123456')");
         } catch (SQLException e) {
@@ -162,7 +158,7 @@ class JDBC_DataBaseManagerTest {
 
     @Test
     void deleteTable() {
-        try {
+        try (Statement stmt = connection.createStatement()) {
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS public.tableForDelete (id serial PRIMARY KEY, name VARCHAR(25), password VARCHAR(25))");
         } catch (SQLException e) {
             e.printStackTrace();

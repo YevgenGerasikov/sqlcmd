@@ -7,10 +7,7 @@ import java.util.List;
 
 public class JDBC_DataBaseManager implements DataBaseManager {
 
-    static Connection connection;
-    private static Statement stmt;
-    private static PreparedStatement pstmt;
-
+    Connection connection;
     private UserInputHandler userInputHandler;
 
     public JDBC_DataBaseManager() {
@@ -24,19 +21,21 @@ public class JDBC_DataBaseManager implements DataBaseManager {
     @Override
     public void connectToDatabase(String db_name, String db_username, String db_password) {
         try {
-            //Загружаем драйвер
             Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            System.out.println("Не удалось загрузить класс драйвера базы данных.");
+        }
+        try {
             connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/" + db_name, db_username, db_password);
-            //Информируем пользователя об открытии соединения
             if (!connection.isClosed()) {
                 System.out.println("Соединение с базой данных успешно установлено.");
             }
-        } catch (ClassNotFoundException e) {
-            System.out.println("Не удалось загрузить класс драйвера базы данных.");
-        } catch (SQLException e) {
+        } catch (
+                SQLException e) {
             System.out.println("Не удалось установить соединение с БД. Проверьте правильность вводимых данных и повторите ввод");
         }
     }
+
     //addTable() метод для добавления новой таблицы - CREATE [table]
     @Override
     public boolean isConnected() {
@@ -45,44 +44,37 @@ public class JDBC_DataBaseManager implements DataBaseManager {
 
     @Override
     public void addTable(String tableName, List<String> userInputAsList) {
-        try {
-            stmt = connection.createStatement();
-            //получаем и выполняем postresql запрос из обработчика пользовательских данных UserInputHandler
+        try (Statement stmt = connection.createStatement()) {
             stmt.executeUpdate(userInputHandler.createTableQuery(tableName, userInputAsList));
-            stmt.close();
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
         System.out.println("Таблица '" + tableName + "' создана.");
     }
+
     //addData() метод добавления данных в таблицу
     @Override
     public void addDataToTable(String tableName, List<String> userInputAsList) {
-        try {
-            stmt = connection.createStatement();
+        try (Statement stmt = connection.createStatement()) {
             int result = stmt.executeUpdate(userInputHandler.addDataToTableQuery(tableName, userInputAsList));
             if (result != 0) {
                 System.out.println("Добавлено " + result + " строк");
             }
-            stmt.close();
         } catch (SQLException e) {
             System.out.println("Ошибка в формате команды к базе данных");
             e.printStackTrace();
         }
     }
+
     //getTablesList() возвращает названия всех таблиц в БД
     @Override
     public void getTablesList() {
-        try {
-            stmt = connection.createStatement();
+        try (Statement stmt = connection.createStatement()) {
             ResultSet rs = stmt.executeQuery(userInputHandler.getTablesListQuery());
             System.out.println("Таблицы базы данных:");
             while (rs.next()) {
                 System.out.println("- " + rs.getString("table_name"));
             }
-            rs.close();
-            stmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -91,15 +83,14 @@ public class JDBC_DataBaseManager implements DataBaseManager {
     //getData() метод получения данных из таблицы - READ [table]
     @Override
     public void getTableData(String tableName) {
-        try {
+        try (Statement stmt = connection.createStatement()) {
             //TODO realize table view of the printing table in console
-            stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(userInputHandler.getTableDataQuery(tableName));
             ResultSetMetaData rsmd = rs.getMetaData();
             int columnsNumber = rsmd.getColumnCount();
             while (rs.next()) {
-                for(int i = 1 ; i <= columnsNumber; i++){
-                    System.out.print(rsmd.getColumnName(i)+": " + rs.getString(i) + " "); //Print one element of a row
+                for (int i = 1; i <= columnsNumber; i++) {
+                    System.out.print(rsmd.getColumnName(i) + ": " + rs.getString(i) + " "); //Print one element of a row
                 }
                 System.out.println();
                 System.out.println("--------------------------------");
@@ -108,39 +99,35 @@ public class JDBC_DataBaseManager implements DataBaseManager {
 //                System.out.println("name:" + rs.getString("name"));
 //                System.out.println("password:" + rs.getString("password"));
             }
-            rs.close();
-            stmt.close();
             System.out.println("Данные из таблицы '" + tableName + "' выведены на экран");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
     //updateData() метод вносит изменения в существующую таблицу
     @Override
     public void updateData(String tableName, List<String> userInputAsList) {
-        try {
+        try (Statement stmt = connection.createStatement()) {
 //        pstmt = connection.prepareStatement("UPDATE public.users SET password = ? WHERE id = 3");
 //        String pass = "password_" + new Random().nextInt();
 //        pstmt.setString(1, pass);
 //        pstmt.executeUpdate();
 //        pstmt.close();
-            stmt = connection.createStatement();
             int result = stmt.executeUpdate(userInputHandler.updateDataInTableQuery(tableName, userInputAsList));
             if (result != 0) {
                 System.out.println("Обновлено " + result + " строк");
             }
-            stmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
     //deleteSelectedData() удаляет данные из таблицы по фильтру
     @Override
     public void deleteSelectedData(String tableName, List<String> userInputAsList) {
-        try {
-            stmt = connection.createStatement();
+        try (Statement stmt = connection.createStatement()) {
             int result = stmt.executeUpdate(userInputHandler.deleteDataInTableQuery(tableName, userInputAsList));
-            stmt.close();
             if (result != 0) {
                 System.out.println("Удалено " + result + " строк");
             }
@@ -148,13 +135,12 @@ public class JDBC_DataBaseManager implements DataBaseManager {
             e.printStackTrace();
         }
     }
+
     @Override
-    public void deleteAllData(String tableName){
-        int result =0;
-        try {
-            stmt = connection.createStatement();
+    public void deleteAllData(String tableName) {
+        int result = 0;
+        try (Statement stmt = connection.createStatement()) {
             result = stmt.executeUpdate(userInputHandler.deleteAllDataInTableQuery(tableName));
-            stmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -162,11 +148,9 @@ public class JDBC_DataBaseManager implements DataBaseManager {
     }
 
     @Override
-    public void deleteTable(String tableName){
-        try {
-            stmt = connection.createStatement();
+    public void deleteTable(String tableName) {
+        try (Statement stmt = connection.createStatement()) {
             stmt.executeUpdate(userInputHandler.deleteTableQuery(tableName));
-            stmt.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -130,7 +130,6 @@ public class JDBC_DataBaseManager implements DataBaseManager {
                 System.out.println("Обновлено " + result + " строк");
             }
             stmt.close();
-            System.out.println("Метод изменения записи в БД выполнен");
         } catch (SQLException e) {
             e.printStackTrace();
         }

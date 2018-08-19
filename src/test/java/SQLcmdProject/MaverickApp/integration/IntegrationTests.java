@@ -6,7 +6,6 @@ import SQLcmdProject.MaverickApp.model.JDBC_DataBaseManager;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
 
 import java.io.ByteArrayOutputStream;
@@ -23,8 +22,8 @@ public class IntegrationTests {
     private ConfigurableInputStream in;
     private ByteArrayOutputStream out;
     private DataBaseManager manager;
-    private static Connection connection;
-    private static Statement stmt;
+    private Connection connection;
+    private Statement stmt;
 
     public String getData() {
         try {
@@ -39,6 +38,13 @@ public class IntegrationTests {
     @BeforeEach
     void setup() {
         manager = new JDBC_DataBaseManager();
+        try {
+            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "postgres");
+            stmt = connection.createStatement();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         in = new ConfigurableInputStream();
         out = new ByteArrayOutputStream();
 
@@ -47,14 +53,23 @@ public class IntegrationTests {
     }
 
     @AfterEach
-    void closeAll() {
+    void closeAfterEach() {
         try {
             in.close();
             out.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        if (stmt != null || connection != null) {
+            try {
+                stmt.close();
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
+
 
     @Test
     void connectTest() {
@@ -112,7 +127,7 @@ public class IntegrationTests {
     }
 
     @Test
-    void isConnectedTest() {
+    void isConnectedTest() { //TODO need fix, it does not work when you run respectively of group tests
         in.add("tables");
         in.add("exit");
         Main.main(new String[0]);
@@ -124,16 +139,23 @@ public class IntegrationTests {
 
     @Test
     void createTest() {
+        int randomNumber = (int) (Math.random() * 1000 + 31);
+        String tableName = "testTableNumber" + randomNumber;
         in.add("connect | postgres | postgres | postgres");
-        in.add("create | testTableNumber127 | firstColumn | secondColumn");
+        in.add("create | " + tableName + " | firstColumn | secondColumn");
         in.add("exit");
         Main.main(new String[0]);
         assertEquals("Для подключения к соответствующей БД введите команду: connect | database | username | password\r\n" +
                 "Соединение с базой данных успешно установлено.\r\n" +
                 "Введите команду (или help для получения списка доступных команд):\r\n" +
-                "Таблица 'testTableNumber127' создана.\r\n" +
+                "Таблица '" + tableName + "' создана.\r\n" +
                 "Введите команду (или help для получения списка доступных команд):\r\n" +
                 "До скорой встречи!\r\n", getData());
+        try {
+            stmt.executeUpdate("DROP TABLE IF EXISTS public." + tableName);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -154,14 +176,20 @@ public class IntegrationTests {
 
     @Test
     void clearTest() {
+        try {
+            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS public.tableForClearData (id serial PRIMARY KEY, name VARCHAR(25), password VARCHAR(25))");
+            stmt.executeUpdate("INSERT INTO public.tableForClearData(name, password) VALUES('TestNameForDelete', '123456')");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         in.add("connect | postgres | postgres | postgres");
-        in.add("clear | test");
+        in.add("clear | tableForClearData");
         in.add("exit");
         Main.main(new String[0]);
         assertEquals("Для подключения к соответствующей БД введите команду: connect | database | username | password\r\n" +
                 "Соединение с базой данных успешно установлено.\r\n" +
                 "Введите команду (или help для получения списка доступных команд):\r\n" +
-                "Содержимое таблицы 'test' полностью очищено. Удалено 0 строк.\r\n" +
+                "Содержимое таблицы 'tableForClearData' полностью очищено. Удалено 1 строк.\r\n" +
                 "Введите команду (или help для получения списка доступных команд):\r\n" +
                 "До скорой встречи!\r\n", getData());
     }
@@ -169,8 +197,6 @@ public class IntegrationTests {
     @Test
     void dropTest() {
         try {
-            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "postgres");
-            stmt = connection.createStatement();
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS tableForDelete()");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -189,26 +215,26 @@ public class IntegrationTests {
 
     @Test
     void findTest() {
-        in.add("connect | staticDB | postgres | postgres");
-        in.add("find | static_users");
+        in.add("connect | postgres | postgres | postgres");
+        in.add("find | statictable");
         in.add("exit");
         Main.main(new String[0]);
         assertEquals("Для подключения к соответствующей БД введите команду: connect | database | username | password\r\n" +
                 "Соединение с базой данных успешно установлено.\r\n" +
                 "Введите команду (или help для получения списка доступных команд):\r\n" +
-                "id: 1 name: Petro surname: Petrov \r\n" +
+                "name: StaticName surname: StaticSurname \r\n" +
                 "--------------------------------\r\n" +
-                "id: 2 name: Yevgen surname: Ivanov \r\n" +
-                "--------------------------------\r\n" +
-                "Данные из таблицы 'static_users' выведены на экран\r\n" +
+                "Данные из таблицы 'statictable' выведены на экран\r\n" +
                 "Введите команду (или help для получения списка доступных команд):\r\n" +
                 "До скорой встречи!\r\n", getData());
     }
 
     @Test
     void insertTest() {
+        int randomNumber = (int) (Math.random() * 1000 + 31);
+        String randomPassword = "randomPass" + randomNumber;
         in.add("connect | postgres | postgres | postgres");
-        in.add("insert | users | name | Pavlo | password | qwe127");
+        in.add("insert | users | name | Pavlo" + randomNumber + " | password | " + randomPassword);
         in.add("exit");
         Main.main(new String[0]);
         assertEquals("Для подключения к соответствующей БД введите команду: connect | database | username | password\r\n" +
@@ -221,22 +247,21 @@ public class IntegrationTests {
 
     @Test
     void updateTest() {
+        int randomNumber = (int) (Math.random() * 1000 + 31);
+        String randomPassword = "randomPass" + randomNumber;
         in.add("connect | postgres | postgres | postgres");
         try {
-            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "postgres");
-            stmt = connection.createStatement();
-            stmt.executeUpdate("INSERT INTO public.users(name, password) VALUES ('Zina', 'Z725@')");
+            stmt.executeUpdate("INSERT INTO public.users(name, password) VALUES ('Zina" + randomNumber + "', 'Z725@')");
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        in.add("update | users | name | Zina | password | newPassword");
+        in.add("update | users | password | Z725@ | password | " + randomPassword + "");
         in.add("exit");
         Main.main(new String[0]);
         assertEquals("Для подключения к соответствующей БД введите команду: connect | database | username | password\r\n" +
                 "Соединение с базой данных успешно установлено.\r\n" +
                 "Введите команду (или help для получения списка доступных команд):\r\n" +
                 "Обновлено 1 строк\r\n" +
-                "Метод изменения записи в БД выполнен\r\n" +
                 "Введите команду (или help для получения списка доступных команд):\r\n" +
                 "До скорой встречи!\r\n", getData());
     }
@@ -245,8 +270,6 @@ public class IntegrationTests {
     void deleteTest() {
         in.add("connect | postgres | postgres | postgres");
         try {
-            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "postgres");
-            stmt = connection.createStatement();
             stmt.executeUpdate("INSERT INTO public.users(name, password) VALUES ('Luba', '123456')");
         } catch (SQLException e) {
             e.printStackTrace();

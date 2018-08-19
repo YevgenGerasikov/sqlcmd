@@ -19,31 +19,31 @@ class JDBC_DataBaseManagerTest {
 
 
     @BeforeAll
-    static void initAll() throws SQLException {
+    static void initAll() {
         manager = new JDBC_DataBaseManager();
         manager.connectToDatabase("postgres", "postgres", "postgres");
-        connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "postgres");
-        stmt = connection.createStatement();
+        try {
+            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/postgres", "postgres", "postgres");
+            stmt = connection.createStatement();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @AfterAll
     static void afterAll() {
         try {
             connection.close();
-            System.out.println("Соединение закрыто");
+            //System.out.println("Тестовое соединение закрыто");
             if (stmt != null && !stmt.isClosed()) {
                 stmt.close();
-                //System.out.println("Инструкция Statement закрыта.");
             } else if (queryResult != null && !queryResult.isClosed()) {
                 queryResult.close();
-                //System.out.println("Инструкция ResultSet закрыта.");
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-    //TODO Mockito need
-
 
     @Test
     void connectToDatabase() {
@@ -58,11 +58,10 @@ class JDBC_DataBaseManagerTest {
     @Test
     void addTable() {
         try {
-            stmt.executeUpdate("DROP TABLE IF EXISTS public.users");
             userInputAsList.add("name");
             userInputAsList.add("password");
-            manager.addTable("users", userInputAsList);
-            queryResult = stmt.executeQuery("SELECT * FROM public.users");
+            manager.addTable("tableForDrop", userInputAsList);
+            queryResult = stmt.executeQuery("SELECT * FROM public.tableForDrop");
             rsmd = queryResult.getMetaData();
             int columnsCount = rsmd.getColumnCount();
             String[] expected = {"id", "name", "password"};
@@ -71,6 +70,7 @@ class JDBC_DataBaseManagerTest {
                 result[i - 1] = rsmd.getColumnName(i);
             }
             assertArrayEquals(expected, result, "expect id, name, password");
+            stmt.executeUpdate("DROP TABLE IF EXISTS public.tableForDrop");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -79,19 +79,18 @@ class JDBC_DataBaseManagerTest {
     @Test
     void addDataToTable() {
         try {
-            queryResult = stmt.executeQuery("SELECT COUNT(1) FROM public.test");
+            int randomNumber = (int) (Math.random() * 1000 + 31);
+            queryResult = stmt.executeQuery("SELECT COUNT(1) FROM public.users");
             int before = 0;
             if (queryResult.next()) {
                 before = queryResult.getInt(1);
             }
             userInputAsList.add("name");
-            userInputAsList.add("Vasyl140");
-            userInputAsList.add("surname");
-            userInputAsList.add("Gupalo1140");
+            userInputAsList.add("Name-" + randomNumber);
             userInputAsList.add("password");
-            userInputAsList.add("12345678p@");
-            manager.addDataToTable("test", userInputAsList);
-            queryResult = stmt.executeQuery("SELECT COUNT(1) FROM public.test");
+            userInputAsList.add("Password-" + randomNumber);
+            manager.addDataToTable("users", userInputAsList);
+            queryResult = stmt.executeQuery("SELECT COUNT(1) FROM public.users");
             int after = 0;
             if (queryResult.next()) {
                 after = queryResult.getInt(1);
@@ -112,38 +111,63 @@ class JDBC_DataBaseManagerTest {
 
     @Test
     void getTableData() {
-        manager.getTableData("test");
+        manager.getTableData("users");
         //Mockito
     }
 
     @Test
         //Mockito
     void updateData() {
-        userInputAsList.add("id");
-        userInputAsList.add("6");
-        userInputAsList.add("password");
-        Integer randomPass = (int) (Math.random() * 1000 + 17);
-        userInputAsList.add("TEST" + randomPass.toString());
-        userInputAsList.add("name");
-        userInputAsList.add("testNAME");
-        manager.updateData("test", userInputAsList);
+        try {
+            int randomNumber = (int) (Math.random() * 1000 + 31);
+            userInputAsList.add("id");
+            userInputAsList.add("1");
+            userInputAsList.add("password");
+            userInputAsList.add("newPassword-" + randomNumber);
+            manager.updateData("users", userInputAsList);
+            queryResult = stmt.executeQuery("SELECT password FROM public.users WHERE id = 1");
+            String expected = "newPassword-" + randomNumber;
+            String result = "";
+            if (queryResult.next()) {
+                result = queryResult.getString(1);
+            }
+            assertEquals(expected, result);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     void deleteSelectedData() {
-        userInputAsList.add("password");
-        userInputAsList.add("12345678p@");
-        manager.deleteSelectedData("test", userInputAsList);
+        try {
+            stmt.executeUpdate("INSERT INTO public.users(name, password) VALUES('TestNameForDelete', '123456')");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        userInputAsList.add("name");
+        userInputAsList.add("TestNameForDelete");
+        manager.deleteSelectedData("users", userInputAsList);
     }
 
     @Test
     void deleteAllData() {
-        manager.deleteAllData("users");
+        try {
+            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS public.tableForClearData (id serial PRIMARY KEY, name VARCHAR(25), password VARCHAR(25))");
+            stmt.executeUpdate("INSERT INTO public.tableForClearData(name, password) VALUES('TestNameForDelete', '123456')");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        manager.deleteAllData("tableForClearData");
     }
 
     @Test
     void deleteTable() {
-        manager.deleteTable("users");
+        try {
+            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS public.tableForDelete (id serial PRIMARY KEY, name VARCHAR(25), password VARCHAR(25))");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        manager.deleteTable("tableForDelete");
     }
 
     @Test

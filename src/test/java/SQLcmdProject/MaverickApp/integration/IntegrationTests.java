@@ -1,13 +1,8 @@
 package SQLcmdProject.MaverickApp.integration;
 
 import SQLcmdProject.MaverickApp.controller.Main;
-import SQLcmdProject.MaverickApp.model.DataBaseManager;
-import SQLcmdProject.MaverickApp.model.JDBC_DataBaseManager;
 import org.junit.jupiter.api.*;
-
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -21,9 +16,8 @@ import java.sql.Statement;
 public class IntegrationTests {
     private ConfigurableInputStream in;
     private ByteArrayOutputStream out;
-    private DataBaseManager manager;
 
-    public String getData() {
+    private String getData() {
         try {
             String result = new String(out.toByteArray(), "UTF-8");
             out.reset();
@@ -35,11 +29,8 @@ public class IntegrationTests {
 
     @BeforeEach
     void setupBeforeEachTest() {
-        manager = new JDBC_DataBaseManager();
-
         in = new ConfigurableInputStream();
         out = new ByteArrayOutputStream();
-
         System.setIn(in);
         System.setOut(new PrintStream(out));
     }

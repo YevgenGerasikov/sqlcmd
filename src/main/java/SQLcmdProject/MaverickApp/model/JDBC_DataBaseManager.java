@@ -14,9 +14,6 @@ public class JDBC_DataBaseManager implements DataBaseManager {
         userInputHandler = new UserInputHandler();
     }
 
-    //TODO перевести все методы в конструкцию "try with recources", для реализации AutoCloseable
-    // https://habr.com/post/178405/
-
     //создаем соединени с БД
     @Override
     public void connectToDatabase(String db_name, String db_username, String db_password) {

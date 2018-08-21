@@ -20,9 +20,10 @@ public class Create implements Command {
 
     @Override
     public void process(List<String> userInputAsList) {
-        if (userInputAsList.size() % 2 != 0) {
-            throw new IllegalArgumentException(String.format("Неправильный формат комманды 'create': должно быть четное " +
-                    "количество параметров в строке вида 'create | tableName | columnNameN | columnNameN', " +
+        if (userInputAsList.size() < 3) {
+            throw new IllegalArgumentException(String.format("Неправильный формат комманды 'create': должно быть " +
+                    "больше '2' парметров в строке " +
+                    " вида 'create | tableName | columnName1 | columnNameN', " +
                     "а вы ввели: '%s'", userInputAsList.size()));
         }
         tableName = userInputAsList.get(1);

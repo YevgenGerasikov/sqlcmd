@@ -24,9 +24,9 @@ public class Connect implements Command {
                     CONNECT_QUERY_LENGTH + " параметра в строке вида 'connect | database | username | password', " +
                     "а вы ввели: '%s'", userInputAsList.size()));
         }
-        String databaseURL = userInputAsList.get(1);
-        String username = userInputAsList.get(2);
+        String databaseName = userInputAsList.get(1);
+        String userName = userInputAsList.get(2);
         String password = userInputAsList.get(3);
-        manager.connectToDatabase(databaseURL, username, password);
+        manager.connectToDatabase(databaseName, userName, password);
     }
 }

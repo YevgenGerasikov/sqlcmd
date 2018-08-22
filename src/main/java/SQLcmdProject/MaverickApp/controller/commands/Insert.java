@@ -19,7 +19,7 @@ public class Insert implements Command {
 
     @Override
     public void process(List<String> userInputAsList) {
-        if (userInputAsList.size() % 2 != 0) {
+        if (userInputAsList.size() % 2 != 0 || userInputAsList.size() < 4) {
             throw new IllegalArgumentException(String.format("Неправильный формат комманды 'insert': должно быть четное " +
                     "количество параметров в строке вида 'insert | tableName | columnName1 | columnName1Value | " +
                     "columnNameN | columnNameNValue', " + "а вы ввели: '%s'", userInputAsList.size()));

@@ -10,7 +10,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FindTest {
+class TablesTest {
     private static Command command;
     private static DataBaseManager manager;
     List<String> userInputAsList = new ArrayList<>();
@@ -18,36 +18,21 @@ class FindTest {
     @BeforeAll
     static void beforeSetup() {
         manager = Mockito.mock(DataBaseManager.class);
-        command = new Find(manager);
+        command = new Tables(manager);
     }
 
     @Test
     void canProcess() {
-        boolean canProcces = command.canProcess("find");
+        boolean canProcces = command.canProcess("tables");
         assertTrue(canProcces);
-    }
-
-    @Test
-    void processWrongCommandFormat() {
-        //when
-        userInputAsList.add("find");
-        try {
-            command.process(userInputAsList);
-            fail("Exception not thrown");
-        } catch (IllegalArgumentException e) {
-            //then
-            assertEquals("Неправильный формат комманды 'find': должно быть два параметра в строке вида " +
-                    "'find | tableName', а вы ввели: '1'", e.getMessage());
-        }
     }
 
     @Test
     void process() {
         //when
-        userInputAsList.add("find");
-        userInputAsList.add("tableName");
+        userInputAsList.add("tables");
         command.process(userInputAsList);
         //then, проверяем, был ли вызов заданого метода с задаными параметрами
-        Mockito.verify(manager).getTableData(userInputAsList.get(1));
+        Mockito.verify(manager).getTablesList();
     }
 }

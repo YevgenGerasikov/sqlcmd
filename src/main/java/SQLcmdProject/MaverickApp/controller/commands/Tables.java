@@ -1,7 +1,6 @@
 package SQLcmdProject.MaverickApp.controller.commands;
 
 import SQLcmdProject.MaverickApp.model.DataBaseManager;
-import SQLcmdProject.MaverickApp.view.ViewForSqlcmd;
 
 import java.util.List;
 

@@ -19,10 +19,10 @@ public class Update implements Command {
 
     @Override
     public void process(List<String> userInputAsList) {
-        if (userInputAsList.size() % 2 != 0) {
+        if (userInputAsList.size() % 2 != 0 || userInputAsList.size() < 6) {
             throw new IllegalArgumentException(String.format("Неправильный формат комманды 'update': должно быть четное " +
-                    "количество параметров в строке вида 'insert | tableName | columnName1 | columnName1Value | " +
-                    "columnNameN | columnNameNValue', " + "а вы ввели: '%s'", userInputAsList.size()));
+                    "количество параметров в строке вида 'update | tableName | WhereColumnName | WhereColumnValue | " +
+                    "SetColumnName | SetColumnValue', " + "а вы ввели: '%s'", userInputAsList.size()));
         }
         tableName = userInputAsList.get(1);
         userInputAsList = userInputAsList.subList(2, userInputAsList.size());

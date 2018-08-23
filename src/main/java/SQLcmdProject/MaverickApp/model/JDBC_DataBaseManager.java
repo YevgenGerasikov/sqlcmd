@@ -1,5 +1,7 @@
 package SQLcmdProject.MaverickApp.model;
 
+import SQLcmdProject.MaverickApp.model.tablePrint.DBTablePrinter;
+
 import java.sql.*;
 import java.util.List;
 
@@ -96,6 +98,17 @@ public class JDBC_DataBaseManager implements DataBaseManager {
 //                System.out.println("name:" + rs.getString("name"));
 //                System.out.println("password:" + rs.getString("password"));
             }
+            System.out.println("Данные из таблицы '" + tableName + "' выведены на экран");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void printTableToConsole(String tableName) {
+        try (Statement stmt = connection.createStatement()) {
+            ResultSet rs = stmt.executeQuery(userInputHandler.getTableDataQuery(tableName));
+            DBTablePrinter dbTablePrinter = new DBTablePrinter();
+            dbTablePrinter.printResultSet(rs);
             System.out.println("Данные из таблицы '" + tableName + "' выведены на экран");
         } catch (SQLException e) {
             e.printStackTrace();

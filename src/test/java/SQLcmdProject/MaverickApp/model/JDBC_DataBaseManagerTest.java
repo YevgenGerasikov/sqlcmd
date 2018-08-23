@@ -1,12 +1,16 @@
 package SQLcmdProject.MaverickApp.model;
 
 import org.junit.jupiter.api.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
+import java.io.PrintStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.internal.verification.VerificationModeFactory.atLeastOnce;
 
 class JDBC_DataBaseManagerTest {
     //Тестируем методы передачи SQL запросов
@@ -101,18 +105,48 @@ class JDBC_DataBaseManagerTest {
 
     @Test
     void getTablesList() {
+        //Mockito test
+        PrintStream out = Mockito.mock(PrintStream.class);
+        System.setOut(out);
         manager.getTablesList();
-        //Mockito
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(out, atLeastOnce()).println(captor.capture());
+        assertEquals("[Таблицы базы данных:, - tableforcleardata, " +
+                "- statictable, - users]", captor.getAllValues().toString());
     }
 
     @Test
     void getTableData() {
-        manager.getTableData("users");
-        //Mockito
+        //Mockito test
+        PrintStream out = Mockito.mock(PrintStream.class);
+        System.setOut(out);
+        manager.getTableData("staticTable");
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(out, atLeastOnce()).println(captor.capture());
+        Mockito.verify(out, atLeastOnce()).print(captor.capture());
+        assertEquals("[--------------------------------, Данные из таблицы 'staticTable' выведены на экран, " +
+                "name: StaticName , surname: StaticSurname ]", captor.getAllValues().toString());
     }
 
     @Test
-        //Mockito
+    void printTableToConsole() {
+        //Mockito test
+        PrintStream out = Mockito.mock(PrintStream.class);
+        System.setOut(out);
+        manager.printTableToConsole("staticTable");
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(out, atLeastOnce()).println(captor.capture());
+        Mockito.verify(out, atLeastOnce()).print(captor.capture());
+        assertEquals("[Печать 1 строки из таблицы statictable, |, " +
+                        "Данные из таблицы 'staticTable' выведены на экран, " +
+                        "+------------+---------------+\r\n" +
+                        "|    name    |    surname    |\r\n" +
+                        "+------------+---------------+\r\n" + ", " +
+                        "| StaticName , | StaticSurname ]",
+                captor.getAllValues().toString());
+    }
+
+    @Test
     void updateData() {
         try (Statement stmt = connection.createStatement()) {
             int randomNumber = (int) (Math.random() * 1000 + 31);
@@ -136,13 +170,18 @@ class JDBC_DataBaseManagerTest {
     @Test
     void deleteSelectedData() {
         try (Statement stmt = connection.createStatement()) {
-            stmt.executeUpdate("INSERT INTO public.users(name, password) VALUES('TestNameForDelete', '123456')");
+            stmt.executeUpdate("INSERT INTO public.tableforcleardata(name, password) VALUES('TestNameForDelete', '123456')");
         } catch (SQLException e) {
             e.printStackTrace();
         }
         userInputAsList.add("name");
         userInputAsList.add("TestNameForDelete");
-        manager.deleteSelectedData("users", userInputAsList);
+
+        PrintStream out = Mockito.mock(PrintStream.class);
+        System.setOut(out);
+        manager.deleteSelectedData("tableForClearData", userInputAsList);
+
+        Mockito.verify(out).println("Удалено 1 строк");
     }
 
     @Test

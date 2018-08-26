@@ -56,6 +56,42 @@ class JDBC_DataBaseManagerTest {
     }
 
     @Test
+    void wrongDBnameConnection() {
+        PrintStream out = Mockito.mock(PrintStream.class);
+        System.setOut(out);
+        manager.connectToDatabase("wrongDBname", "postgres", "postgres");
+        Mockito.verify(out).println("Не удалось установить соединение с БД. Проверьте правильность вводимых данных и " +
+                "повторите ввод");
+        Mockito.verify(out).println("Ошибка: ВАЖНО: база данных \"wrongDBname\" не существует (pgjdbc: autodetected " +
+                "server-encoding to be windows-1251, if the message is not readable, please check database logs and/or " +
+                "host, port, dbname, user, password, pg_hba.conf)");
+    }
+
+    @Test
+    void wrongUsernameConnection() {
+        PrintStream out = Mockito.mock(PrintStream.class);
+        System.setOut(out);
+        manager.connectToDatabase("postgres", "postgresW", "postgres");
+        Mockito.verify(out).println("Не удалось установить соединение с БД. Проверьте правильность вводимых данных и " +
+                "повторите ввод");
+        Mockito.verify(out).println("Ошибка: ВАЖНО: пользователь \"postgresW\" не прошёл проверку подлинности (по паролю)" +
+                " (pgjdbc: autodetected server-encoding to be windows-1251, if the message is not readable, please check " +
+                "database logs and/or host, port, dbname, user, password, pg_hba.conf)");
+    }
+
+    @Test
+    void wrongPasswordConnection() {
+        PrintStream out = Mockito.mock(PrintStream.class);
+        System.setOut(out);
+        manager.connectToDatabase("postgres", "postgres", "postgresW");
+        Mockito.verify(out).println("Не удалось установить соединение с БД. Проверьте правильность вводимых данных и " +
+                "повторите ввод");
+        Mockito.verify(out).println("Ошибка: ВАЖНО: пользователь \"postgres\" не прошёл проверку подлинности (по паролю)" +
+                " (pgjdbc: autodetected server-encoding to be windows-1251, if the message is not readable, please check " +
+                "database logs and/or host, port, dbname, user, password, pg_hba.conf)");
+    }
+
+    @Test
     void addTable() {
         try (Statement stmt = connection.createStatement()) {
             userInputAsList.add("name");

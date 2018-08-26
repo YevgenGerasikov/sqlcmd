@@ -32,6 +32,7 @@ public class JDBC_DataBaseManager implements DataBaseManager {
         } catch (
                 SQLException e) {
             System.out.println("Не удалось установить соединение с БД. Проверьте правильность вводимых данных и повторите ввод");
+            System.out.println("Ошибка: " + e.getMessage());
         }
     }
 

@@ -25,7 +25,7 @@ public class JDBC_DataBaseManager implements DataBaseManager {
             System.out.println("Не удалось загрузить класс драйвера базы данных.");
         }
         try {
-            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/" + db_name, db_username, db_password);
+            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/" + db_name + "?loggerLevel=OFF", db_username, db_password);
             if (!connection.isClosed()) {
                 System.out.println("Соединение с базой данных успешно установлено.");
             }

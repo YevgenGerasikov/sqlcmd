@@ -48,6 +48,6 @@ class FindTest {
         userInputAsList.add("tableName");
         command.process(userInputAsList);
         //then, проверяем, был ли вызов заданого метода с задаными параметрами
-        Mockito.verify(manager).getTableData(userInputAsList.get(1));
+        Mockito.verify(manager).printTableToConsole(userInputAsList.get(1));
     }
 }

@@ -24,6 +24,6 @@ public class Find implements Command {
                     "параметра в строке вида 'find | tableName', а вы ввели: '%s'", userInputAsList.size()));
         }
         tableName = userInputAsList.get(1);
-        manager.getTableData(tableName);
+        manager.printTableToConsole(tableName);
     }
 }

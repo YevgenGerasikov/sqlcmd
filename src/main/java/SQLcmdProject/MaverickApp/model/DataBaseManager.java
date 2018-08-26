@@ -23,6 +23,8 @@ public interface DataBaseManager {
     //getData() метод получения данных из таблицы - READ [table]
     void getTableData(String tableName);
 
+    void printTableToConsole(String tableName);
+
     //updateData() метод вносит изменения в существующую таблицу
     void updateData(String tableName, List<String> userInputAsList);
 

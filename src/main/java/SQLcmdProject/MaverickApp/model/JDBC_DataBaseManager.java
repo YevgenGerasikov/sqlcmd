@@ -84,7 +84,6 @@ public class JDBC_DataBaseManager implements DataBaseManager {
     @Override
     public void getTableData(String tableName) {
         try (Statement stmt = connection.createStatement()) {
-            //TODO realize table view of the printing table in console
             ResultSet rs = stmt.executeQuery(userInputHandler.getTableDataQuery(tableName));
             ResultSetMetaData rsmd = rs.getMetaData();
             int columnsNumber = rsmd.getColumnCount();
@@ -101,18 +100,22 @@ public class JDBC_DataBaseManager implements DataBaseManager {
             }
             System.out.println("Данные из таблицы '" + tableName + "' выведены на экран");
         } catch (SQLException e) {
-            e.printStackTrace();
+            if ((e.getErrorCode() == 0)) {
+                throw new NotExistTableNameException("Таблица с заданым именем не найдена. " + e.getMessage());
+            }
         }
     }
 
-    public void printTableToConsole(String tableName) {
+    public void printTableToConsole(String tableName) throws NotExistTableNameException {
         try (Statement stmt = connection.createStatement()) {
             ResultSet rs = stmt.executeQuery(userInputHandler.getTableDataQuery(tableName));
             DBTablePrinter dbTablePrinter = new DBTablePrinter();
             dbTablePrinter.printResultSet(rs);
             System.out.println("Данные из таблицы '" + tableName + "' выведены на экран");
         } catch (SQLException e) {
-            e.printStackTrace();
+            if ((e.getErrorCode() == 0)) {
+                throw new NotExistTableNameException("Таблица с заданым именем не найдена. " + e.getMessage());
+            }
         }
     }
 

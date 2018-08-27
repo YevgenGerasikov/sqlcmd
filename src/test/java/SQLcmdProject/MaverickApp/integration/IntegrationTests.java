@@ -2,15 +2,22 @@ package SQLcmdProject.MaverickApp.integration;
 
 import SQLcmdProject.MaverickApp.controller.Main;
 import org.junit.jupiter.api.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.internal.verification.VerificationModeFactory.atLeastOnce;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.Format;
 
 
 public class IntegrationTests {
@@ -216,6 +223,26 @@ public class IntegrationTests {
                 "Данные из таблицы 'statictable' выведены на экран\r\n" +
                 "Введите команду (или help для получения списка доступных команд):\r\n" +
                 "До скорой встречи!\r\n", getData());
+    }
+
+    @Test
+    void findNotExistTableTest() {//TODO test doesn't work properly
+//        in.add("connect | postgres | postgres | postgres");
+//        in.add("find | statictable2");
+//        in.add("exit");
+//        Main.main(new String[0]);
+//        assertEquals("Для подключения к соответствующей БД введите команду: connect | database | username | password\r\n" +
+//                "Соединение с базой данных успешно установлено.\r\n" +
+//                "Введите команду (или help для получения списка доступных команд):\r\n" +
+//                "Таблица с заданым именем не найдена. ОШИБКА: отношение \"public.statictable2\" не существует\r\n" +
+//                "  Позиция: 15\r\n" +
+//                "Таблицы базы данных:\r\n" +
+//                "- tableforcleardata\r\n" +
+//                "- statictable\r\n" +
+//                "- users\r\n" +
+//                "Несуществующая команда: [find, statictable2]\r\n" +
+//                "Введите команду (или help для получения списка доступных команд):\r\n" +
+//                "До скорой встречи!\r\n", getData());
     }
 
     @Test

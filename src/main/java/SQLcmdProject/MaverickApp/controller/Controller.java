@@ -2,6 +2,7 @@ package SQLcmdProject.MaverickApp.controller;
 
 import SQLcmdProject.MaverickApp.controller.commands.*;
 import SQLcmdProject.MaverickApp.model.DataBaseManager;
+import SQLcmdProject.MaverickApp.model.NotExistTableNameException;
 import SQLcmdProject.MaverickApp.view.ViewForSqlcmd;
 
 import java.util.Arrays;
@@ -54,6 +55,9 @@ public class Controller {
                         command.process(userInputAsList);
                         break;
                     }
+                } catch (NotExistTableNameException e) {
+                    System.out.println(e.getMessage());
+                    commands[5].process(userInputAsList);
                 } catch (Exception e) {
                     if (e instanceof ExitException) {
                         throw e;

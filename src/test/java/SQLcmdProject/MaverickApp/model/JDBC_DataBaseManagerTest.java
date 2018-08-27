@@ -183,6 +183,28 @@ class JDBC_DataBaseManagerTest {
     }
 
     @Test
+    void getNotExistTableData() {
+        try {
+            manager.getTableData("staticTable2");
+            fail("Exception not thrown");
+        } catch (NotExistTableNameException e) {
+            assertEquals("Таблица с заданым именем не найдена. ОШИБКА: отношение \"public.statictable2\" не " +
+                    "существует\n" + "  Позиция: 15", e.getMessage());
+        }
+    }
+
+    @Test
+    void printNotExistTableToConsole() {
+        try {
+            manager.printTableToConsole("staticTable2");
+            fail("Exception not thrown");
+        } catch (NotExistTableNameException e) {
+            assertEquals("Таблица с заданым именем не найдена. ОШИБКА: отношение \"public.statictable2\" не " +
+                    "существует\n" + "  Позиция: 15", e.getMessage());
+        }
+    }
+
+    @Test
     void updateData() {
         try (Statement stmt = connection.createStatement()) {
             int randomNumber = (int) (Math.random() * 1000 + 31);

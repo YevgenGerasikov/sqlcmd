@@ -106,9 +106,9 @@ public class JDBC_DataBaseManager implements DataBaseManager {
         }
     }
 
-    public void printTableToConsole(String tableName) throws NotExistTableNameException {
+    public void printTableToConsole(String tableName, String limit, String offset) throws NotExistTableNameException {
         try (Statement stmt = connection.createStatement()) {
-            ResultSet rs = stmt.executeQuery(userInputHandler.getTableDataQuery(tableName));
+            ResultSet rs = stmt.executeQuery(userInputHandler.getTableDataQuery(tableName) + limit + offset);
             DBTablePrinter dbTablePrinter = new DBTablePrinter();
             dbTablePrinter.printResultSet(rs);
             System.out.println("Данные из таблицы '" + tableName + "' выведены на экран");

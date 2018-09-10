@@ -160,8 +160,11 @@ class JDBC_DataBaseManagerTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(out, atLeastOnce()).println(captor.capture());
         Mockito.verify(out, atLeastOnce()).print(captor.capture());
-        assertEquals("[--------------------------------, Данные из таблицы 'staticTable' выведены на экран, " +
-                "name: StaticName , surname: StaticSurname ]", captor.getAllValues().toString());
+        assertEquals("[--------------------------------, --------------------------------, -------------------" +
+                "-------------, --------------------------------, --------------------------------, Данные из таблицы " +
+                "'staticTable' выведены на экран, name: StaticName , surname: StaticSurname , name: StaticName2 , " +
+                "surname: StaticSurname , name: StaticName3 , surname: StaticSurname , name: StaticName4 , surname: " +
+                "StaticSurname , name: StaticName5 , surname: StaticSurname ]", captor.getAllValues().toString());
     }
 
     @Test
@@ -169,16 +172,79 @@ class JDBC_DataBaseManagerTest {
         //Mockito test
         PrintStream out = Mockito.mock(PrintStream.class);
         System.setOut(out);
-        manager.printTableToConsole("staticTable");
+        manager.printTableToConsole("staticTable", "", "");
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         Mockito.verify(out, atLeastOnce()).println(captor.capture());
         Mockito.verify(out, atLeastOnce()).print(captor.capture());
-        assertEquals("[Печать 1 строки из таблицы statictable, |, " +
-                        "Данные из таблицы 'staticTable' выведены на экран, " +
-                        "+------------+---------------+\r\n" +
-                        "|    name    |    surname    |\r\n" +
-                        "+------------+---------------+\r\n" + ", " +
-                        "| StaticName , | StaticSurname ]",
+        assertEquals("[Печать 5 строк из таблицы statictable," +
+                        " |, |, |, |, |, Данные из таблицы 'staticTable' " +
+                        "выведены на экран," +
+                        " +--------------+---------------+\r\n" +
+                        "|     name     |    surname    |\r\n" +
+                        "+--------------+---------------+\r\n" +
+                        ", | StaticName   , | StaticSurname ," +
+                        " | StaticName2  , | StaticSurname ," +
+                        " | StaticName3  , | StaticSurname ," +
+                        " | StaticName4  , | StaticSurname ," +
+                        " | StaticName5  , | StaticSurname ]",
+                captor.getAllValues().toString());
+    }
+
+    @Test
+    void printTableToConsoleWithLimit() {
+        //Mockito test
+        PrintStream out = Mockito.mock(PrintStream.class);
+        System.setOut(out);
+        manager.printTableToConsole("staticTable", " LIMIT 3", "");
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(out, atLeastOnce()).println(captor.capture());
+        Mockito.verify(out, atLeastOnce()).print(captor.capture());
+        assertEquals("[Печать 3 строк из таблицы statictable, |, |, |," +
+                        " Данные из таблицы 'staticTable' выведены на экран," +
+                        " +--------------+---------------+\r\n" +
+                        "|     name     |    surname    |\r\n" +
+                        "+--------------+---------------+\r\n" +
+                        ", | StaticName   , | StaticSurname ," +
+                        " | StaticName2  , | StaticSurname ," +
+                        " | StaticName3  , | StaticSurname ]",
+                captor.getAllValues().toString());
+    }
+
+    @Test
+    void printTableToConsoleWithOffset() {
+        //Mockito test
+        PrintStream out = Mockito.mock(PrintStream.class);
+        System.setOut(out);
+        manager.printTableToConsole("staticTable", "", " OFFSET 3");
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(out, atLeastOnce()).println(captor.capture());
+        Mockito.verify(out, atLeastOnce()).print(captor.capture());
+        assertEquals("[Печать 2 строк из таблицы statictable, |, |, " +
+                        "Данные из таблицы 'staticTable' выведены на экран," +
+                        " +--------------+---------------+\r\n" +
+                        "|     name     |    surname    |\r\n" +
+                        "+--------------+---------------+\r\n" +
+                        ", | StaticName4  , | StaticSurname ," +
+                        " | StaticName5  , | StaticSurname ]",
+                captor.getAllValues().toString());
+    }
+
+    @Test
+    void printTableToConsoleWithLimitAndOffset() {
+        //Mockito test
+        PrintStream out = Mockito.mock(PrintStream.class);
+        System.setOut(out);
+        manager.printTableToConsole("staticTable", " LIMIT 2", " OFFSET 2");
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        Mockito.verify(out, atLeastOnce()).println(captor.capture());
+        Mockito.verify(out, atLeastOnce()).print(captor.capture());
+        assertEquals("[Печать 2 строк из таблицы statictable, |, |, " +
+                        "Данные из таблицы 'staticTable' выведены на экран," +
+                        " +--------------+---------------+\r\n" +
+                        "|     name     |    surname    |\r\n" +
+                        "+--------------+---------------+\r\n" +
+                        ", | StaticName3  , | StaticSurname ," +
+                        " | StaticName4  , | StaticSurname ]",
                 captor.getAllValues().toString());
     }
 
@@ -196,7 +262,7 @@ class JDBC_DataBaseManagerTest {
     @Test
     void printNotExistTableToConsole() {
         try {
-            manager.printTableToConsole("staticTable2");
+            manager.printTableToConsole("staticTable2", "", "");
             fail("Exception not thrown");
         } catch (NotExistTableNameException e) {
             assertEquals("Таблица с заданым именем не найдена. ОШИБКА: отношение \"public.statictable2\" не " +

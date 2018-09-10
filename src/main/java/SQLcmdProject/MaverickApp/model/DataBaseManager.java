@@ -1,6 +1,5 @@
 package SQLcmdProject.MaverickApp.model;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public interface DataBaseManager {
@@ -23,7 +22,7 @@ public interface DataBaseManager {
     //getData() метод получения данных из таблицы - READ [table]
     void getTableData(String tableName);
 
-    void printTableToConsole(String tableName);
+    void printTableToConsole(String tableName, String limit, String offset);
 
     //updateData() метод вносит изменения в существующую таблицу
     void updateData(String tableName, List<String> userInputAsList);

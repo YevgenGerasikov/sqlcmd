@@ -36,8 +36,8 @@ class FindTest {
             fail("Exception not thrown");
         } catch (IllegalArgumentException e) {
             //then
-            assertEquals("Неправильный формат комманды 'find': должно быть два параметра в строке вида " +
-                    "'find | tableName', а вы ввели: '1'", e.getMessage());
+            assertEquals("Неправильный формат комманды 'find': должно быть четное количество параметров в " +
+                    "строке вида 'find | tableName', а вы ввели: '1'", e.getMessage());
         }
     }
 
@@ -48,6 +48,6 @@ class FindTest {
         userInputAsList.add("tableName");
         command.process(userInputAsList);
         //then, проверяем, был ли вызов заданого метода с задаными параметрами
-        Mockito.verify(manager).printTableToConsole(userInputAsList.get(1));
+        Mockito.verify(manager).printTableToConsole(userInputAsList.get(1), "", "");
     }
 }

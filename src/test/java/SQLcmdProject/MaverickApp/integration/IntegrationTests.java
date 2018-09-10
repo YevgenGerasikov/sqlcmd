@@ -213,12 +213,43 @@ public class IntegrationTests {
         assertEquals("Для подключения к соответствующей БД введите команду: connect | database | username | password\r\n" +
                 "Соединение с базой данных успешно установлено.\r\n" +
                 "Введите команду (или help для получения списка доступных команд):\r\n" +
-                "Печать 1 строки из таблицы statictable\r\n" +
-                "+------------+---------------+\r\n" +
-                "|    name    |    surname    |\r\n" +
-                "+------------+---------------+\r\n" +
-                "| StaticName | StaticSurname |\r\n" +
-                "+------------+---------------+\r\n" +
+                "Печать 5 строк из таблицы statictable\r\n" +
+                "+--------------+---------------+\r\n" +
+                "|     name     |    surname    |\r\n" +
+                "+--------------+---------------+\r\n" +
+                "| StaticName   | StaticSurname |\r\n" +
+                "+--------------+---------------+\r\n" +
+                "| StaticName2  | StaticSurname |\r\n" +
+                "+--------------+---------------+\r\n" +
+                "| StaticName3  | StaticSurname |\r\n" +
+                "+--------------+---------------+\r\n" +
+                "| StaticName4  | StaticSurname |\r\n" +
+                "+--------------+---------------+\r\n" +
+                "| StaticName5  | StaticSurname |\r\n" +
+                "+--------------+---------------+\r\n" +
+                "\r\n" +
+                "Данные из таблицы 'statictable' выведены на экран\r\n" +
+                "Введите команду (или help для получения списка доступных команд):\r\n" +
+                "До скорой встречи!\r\n", getData());
+    }
+
+    @Test
+    void findTestWithLimitAndOffset() {
+        in.add("connect | postgres | postgres | postgres");
+        in.add("find | statictable | LIMIT | 2 | OFFSET | 2");
+        in.add("exit");
+        Main.main(new String[0]);
+        assertEquals("Для подключения к соответствующей БД введите команду: connect | database | username | password\r\n" +
+                "Соединение с базой данных успешно установлено.\r\n" +
+                "Введите команду (или help для получения списка доступных команд):\r\n" +
+                "Печать 2 строк из таблицы statictable\r\n" +
+                "+--------------+---------------+\r\n" +
+                "|     name     |    surname    |\r\n" +
+                "+--------------+---------------+\r\n" +
+                "| StaticName3  | StaticSurname |\r\n" +
+                "+--------------+---------------+\r\n" +
+                "| StaticName4  | StaticSurname |\r\n" +
+                "+--------------+---------------+\r\n" +
                 "\r\n" +
                 "Данные из таблицы 'statictable' выведены на экран\r\n" +
                 "Введите команду (или help для получения списка доступных команд):\r\n" +

@@ -111,8 +111,9 @@ class UserInputHandlerTest {
         String result = testHandlerInstance.deleteDataInTableQuery("users", userInputAsList);
         assertEquals(expected, result);
     }
+
     @Test
-    void  deleteAllDataInTableQuery(){
+    void deleteAllDataInTableQuery() {
         String expected = "DELETE FROM public.users";
         String result = testHandlerInstance.deleteAllDataInTableQuery("users");
         assertEquals(expected, result);

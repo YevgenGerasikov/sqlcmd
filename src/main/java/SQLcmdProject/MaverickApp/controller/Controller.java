@@ -47,7 +47,7 @@ public class Controller {
         view.write("Для подключения к соответствующей БД введите команду: connect | database | username | password");
         while (true) {
             String userInputAsString = view.read();
-            userInputAsArray = userInputAsString.split("\\s\\|\\s");
+            userInputAsArray = userInputAsString.split("\\s+\\|\\s+");
             userInputAsList = Arrays.asList(userInputAsArray);
             for (Command command : commands) {
                 try {
